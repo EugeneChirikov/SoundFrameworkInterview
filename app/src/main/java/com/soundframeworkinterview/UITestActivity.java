@@ -1,13 +1,10 @@
 package com.soundframeworkinterview;
 
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -56,9 +53,6 @@ public class UITestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_uitest);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         FloatingActionButton targetButton = (FloatingActionButton) findViewById(R.id.target_button);
         targetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,11 +61,6 @@ public class UITestActivity extends AppCompatActivity {
                         .show();
             }
         });
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayShowHomeEnabled(false);
-            actionBar.setDisplayShowTitleEnabled(false);
-        }
         findViewById(R.id.action_menu).setOnClickListener(mButtonsListener);
         findViewById(R.id.action_favorite).setOnClickListener(mButtonsListener);
         findViewById(R.id.action_headphones).setOnClickListener(mButtonsListener);
@@ -79,8 +68,6 @@ public class UITestActivity extends AppCompatActivity {
         findViewById(R.id.action_location).setOnClickListener(mButtonsListener);
 
         mSongProgress = (ProgressBar) findViewById(R.id.song_progress);
-        mSongProgress.getProgressDrawable().setColorFilter(getResources().getColor(
-                R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         mProgressMax = SONG_LENGTH_SECONDS * UPDATE_RATE;
         mSongProgress.setMax(mProgressMax);
         mHandler = new Handler();

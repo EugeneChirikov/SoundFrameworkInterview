@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
+        <FrameLayout
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
@@ -59,7 +59,7 @@
                         android:src="@drawable/ic_heart_outline"/>
                 </LinearLayout>
             </RelativeLayout>
-        </android.support.v7.widget.Toolbar>
+        </FrameLayout>
 
     </android.support.design.widget.AppBarLayout>
 

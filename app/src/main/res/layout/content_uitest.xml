@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:progressDrawable="@drawable/custom_progress_bar"
             android:padding="0dp"/>
         <TextView
             android:id="@+id/song_title"

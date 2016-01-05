@@ -8,31 +8,17 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.soundframeworkinterview.models.MediaItem;
+import com.soundframeworkinterview.models.SearchResponse;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class APITestActivity extends AppCompatActivity {
-    static final String SEARCH_REQUEST_TAG = "search_request";
-    static final String SEARCH_URL =
-            "http://alpha.core.soundframework.com/api/0/rest/json/media/find/query/";
-    static final String AUTH_HEADER_KEY = "Authorization";
-    static final String AUTH_HEADER_VALUE = "bearer client";
     RequestQueue mRequestQueue;
     SearchResultsAdapter mResultsAdapter;
 
@@ -48,9 +34,9 @@ public class APITestActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SearchResultsAdapter adapter = (SearchResultsAdapter) parent.getAdapter();
-                SearchResult item = adapter.getItem(position);
+                MediaItem item = adapter.getItem(position);
                 String formattedString = String.format("id=%s, artist=%s, title=%s",
-                        item.id, item.artist, item.title);
+                        item.id, item.meta.artist, item.meta.title);
                 Toast.makeText(APITestActivity.this, formattedString, Toast.LENGTH_SHORT).show();
             }
         });
@@ -71,52 +57,39 @@ public class APITestActivity extends AppCompatActivity {
     }
 
     private void refreshResults(String searchKey) {
-        mRequestQueue.cancelAll(SEARCH_REQUEST_TAG);
+        mRequestQueue.cancelAll(SearchRequest.TAG);
         if (searchKey.isEmpty()) {
-            mResultsAdapter.addItems(null);
+            mResultsAdapter.addItems((List<MediaItem>)null);
             return;
         }
-        String url;
+        SearchRequest request;
         try {
-            url = SEARCH_URL + URLEncoder.encode(searchKey, "utf-8");
+            request = new SearchRequest(SearchResponse.class, searchKey,
+                    new Response.Listener<SearchResponse>() {
+                        @Override
+                        public void onResponse(SearchResponse response) {
+                            mResultsAdapter.addItems(response.rhos.media);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(APITestActivity.this,
+                                    "Network error", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
         } catch (UnsupportedEncodingException e) {
             Toast.makeText(APITestActivity.this,
                     "Encoding error", Toast.LENGTH_SHORT).show();
             return;
         }
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        updateListWith(response);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(APITestActivity.this,
-                                "Network error", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put(AUTH_HEADER_KEY, AUTH_HEADER_VALUE);
-                return headers;
-            }
-        };
-        request.setTag(SEARCH_REQUEST_TAG);
-        mRequestQueue.add(request);
-    }
-
-    private void updateListWith(JSONObject response) {
-        List<SearchResult> results = RequestsParser.parseSearchResults(response);
-        mResultsAdapter.addItems(results);
+        mRequestQueue.add(request.getVolleyRequest());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mRequestQueue.cancelAll(SEARCH_REQUEST_TAG);
+        mRequestQueue.cancelAll(SearchRequest.TAG);
     }
 }

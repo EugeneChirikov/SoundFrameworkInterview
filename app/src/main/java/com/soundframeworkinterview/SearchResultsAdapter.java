@@ -7,7 +7,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.soundframeworkinterview.models.MediaItem;
+import com.soundframeworkinterview.models.SearchResult;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,7 +19,7 @@ import java.util.List;
  * @created 03/01/16
  */
 public class SearchResultsAdapter extends BaseAdapter {
-    List<SearchResult> mSearchResults = new ArrayList<>();
+    List<MediaItem> mSearchResults = new ArrayList<>();
     Context mContext;
     LayoutInflater mInflater;
 
@@ -24,11 +28,19 @@ public class SearchResultsAdapter extends BaseAdapter {
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addItems(List<SearchResult> results) {
+    public void addItems(List<MediaItem> results) {
         if (results == null) {
             mSearchResults.clear();
         } else {
             mSearchResults = results;
+        }
+        notifyDataSetChanged();
+    }
+
+    public void addItems(MediaItem[] results) {
+        mSearchResults.clear();
+        if (results != null) {
+            Collections.addAll(mSearchResults, results);
         }
         notifyDataSetChanged();
     }
@@ -39,7 +51,7 @@ public class SearchResultsAdapter extends BaseAdapter {
     }
 
     @Override
-    public SearchResult getItem(int position) {
+    public MediaItem getItem(int position) {
         return mSearchResults.get(position);
     }
 
@@ -54,7 +66,7 @@ public class SearchResultsAdapter extends BaseAdapter {
             convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
         }
         TextView resultView = (TextView) convertView.findViewById(android.R.id.text1);
-        SearchResult searchResult = mSearchResults.get(position);
+        SearchResult searchResult = mSearchResults.get(position).meta;
         String formattedResult = String.format("%s - %s", searchResult.title, searchResult.artist);
         resultView.setText(formattedResult);
         return convertView;
